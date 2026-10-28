@@ -1,0 +1,15 @@
+name: Checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  javascript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tests/check-manifests.cjs
+      - run: node --check chrome/background.js && node --check chrome/content.js
+      - run: node --check firefox/background.js && node --check firefox/content.js

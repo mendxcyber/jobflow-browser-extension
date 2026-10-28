@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "Candidaturas automáticas — JobFlow",
+  "version": "2.1.1",
+  "description": "Integra o painel local às plataformas de vagas, preenche formulários e envia candidaturas compatíveis.",
+  "permissions": [
+    "alarms",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "jobflow@example.com",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": [
+          "personallyIdentifyingInfo",
+          "personalCommunications",
+          "websiteActivity",
+          "websiteContent"
+        ]
+      }
+    }
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

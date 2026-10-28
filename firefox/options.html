@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Candidaturas automáticas — JobFlow</title>
+  <style>
+    body{margin:0;background:#0b1120;color:#e2e8f0;font:15px Segoe UI,Arial,sans-serif}
+    main{max-width:680px;margin:40px auto;padding:26px;background:#111827;border:1px solid #263449;border-radius:14px}
+    h1{margin-top:0;font-size:24px} label{display:block;margin:18px 0 7px;font-weight:650}
+    input[type=url],input[type=number]{box-sizing:border-box;width:100%;padding:11px;border:1px solid #475569;border-radius:8px;background:#0f172a;color:#fff}
+    .check{display:flex;gap:10px;align-items:flex-start;font-weight:500}.check input{margin-top:4px}
+    .note{color:#a8b4c5;line-height:1.45}button{margin-top:22px;padding:11px 17px;border:0;border-radius:8px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}
+    #status{margin-left:12px;color:#86efac}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Candidaturas automáticas</h1>
+  <p class="note">O navegador usa os currículos preparados pelo painel. CAPTCHA, login vencido, testes e perguntas obrigatórias sem resposta cadastrada são enviados para a aba “Ação necessária”.</p>
+  <label for="panelUrl">Endereço do painel</label>
+  <input id="panelUrl" type="url" placeholder="http://localhost:8090">
+  <label for="pollMinutes">Verificar novas candidaturas a cada</label>
+  <input id="pollMinutes" type="number" min="1" max="60" value="5">
+  <label class="check"><input id="autoApplyEnabled" type="checkbox"> Abrir vagas aprovadas, preencher dados, responder perguntas conhecidas e anexar o currículo automaticamente.</label>
+  <label class="check"><input id="autoSubmitEnabled" type="checkbox"> Clicar no botão final de envio quando todos os campos obrigatórios estiverem preenchidos e não houver bloqueios.</label>
+  <p class="note">O envio final já vem ativado. Desative a segunda opção se quiser apenas conferir os formulários preenchidos antes do clique final.</p>
+  <button id="save">Salvar configurações</button><span id="status"></span>
+  <script src="options.js"></script>
+</main>
+</body>
+</html>
