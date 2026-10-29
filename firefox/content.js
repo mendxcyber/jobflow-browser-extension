@@ -122,6 +122,9 @@
 
   const blocker = () => {
     const text = pageText();
+    if (/pay (?:to|before you) apply|payment required to apply|subscription required to apply|upgrade (?:your plan )?to apply|paid membership required|pague para se candidatar|assinatura obrigatoria para se candidatar/.test(text)) {
+      return "Portal exige pagamento ou assinatura para candidatura";
+    }
     if ([...document.querySelectorAll("iframe[src*='captcha'], .g-recaptcha, .h-captcha, .cf-turnstile, [data-sitekey]")].some(visible) || /verify you are human|verifique que voce e humano|nao sou um robo/.test(text)) {
       return "CAPTCHA encontrado";
     }
@@ -157,7 +160,7 @@
     .map((element) => ({ element, text: normalize(element.innerText || element.value || element.getAttribute("aria-label")) }));
 
   const successDetected = () => {
-    const pattern=/^(?:sua )?(?:candidatura (?:enviada|realizada|concluida|recebida)(?: com sucesso)?|inscricao (?:enviada|realizada|concluida)|curriculo enviado com sucesso|(?:your )?application (?:has been )?(?:submitted|received)(?: successfully)?|thank you for applying|obrigado por se candidatar)[.!\s]*$/i;
+    const pattern=/(?:sua )?(?:candidatura (?:foi )?(?:enviada|realizada|concluida|recebida)(?: com sucesso)?|inscricao (?:enviada|realizada|concluida)|curriculo enviado com sucesso|(?:your )?application (?:has been )?(?:submitted|received)(?: successfully)?|thank you for applying|obrigado por se candidatar)/i;
     const node=[...document.querySelectorAll('[role="alert"], [role="status"], h1,h2,h3,p')].find(n=>n.id!=='caua-auto-apply-status' && visible(n) && pattern.test(normalize(n.innerText)));
     return node?.innerText?.trim() || '';
   };
@@ -230,7 +233,7 @@
       }
       const missing = unansweredRequired();
       const buttons = actionButtons();
-      const final = buttons.find(({ text }) => /^(enviar candidatura|enviar inscricao|finalizar candidatura|submit application|submit your application|send application|complete application|aplicar agora)$/.test(text));
+      const final = buttons.find(({ text }) => /^(enviar candidatura|enviar inscricao|finalizar candidatura|concluir candidatura|submit application|submit your application|send application|complete application|send my application|finish application|apply and submit)$/.test(text));
       const next = buttons.find(({ text }) => /^(continuar|proximo|avancar|seguinte|continue|next|apply|apply now|candidate-se no site da empresa|candidatar-se|candidatar|me candidatar|candidatura rapida|entre para candidatar-se|candidatar-se agora|candidatar-se para a vaga|candidatar-se a esta vaga|quero me candidatar|inscrever-se|realizar candidatura)$/.test(text));
 
       if (submitted) {

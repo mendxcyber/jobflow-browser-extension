@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Candidaturas automáticas — JobFlow",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Integra o painel local às plataformas de vagas, preenche formulários e envia candidaturas compatíveis.",
   "permissions": [
     "alarms",

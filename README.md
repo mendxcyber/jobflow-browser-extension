@@ -4,13 +4,14 @@ Extensão experimental que conecta o navegador ao [JobFlow Local](https://github
 
 ## Comportamento
 
-Protocolo 3.0.0, compatível com a fila atual do JobFlow Local.
+Protocolo 3.1.0, compatível com a fila atual do JobFlow Local.
 
 - Lê a fila de candidaturas no serviço local.
 - Usa somente dados e respostas previamente configurados.
 - Reconhece alguns botões de avanço e envio por texto.
 - Interrompe o fluxo ao detectar login, CAPTCHA, campos obrigatórios desconhecidos ou etapa não reconhecida.
 - Registra situações que precisam de intervenção no painel.
+- Bloqueia páginas que exigem pagamento ou assinatura para candidatar.
 - Informa versão e estado das opções para o painel detectar desconexões.
 - Usa token de tentativa e exige registro de início de envio antes do clique final.
 - Evita repetir o clique de envio e só registra sucesso após detectar confirmação.

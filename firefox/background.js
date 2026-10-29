@@ -38,7 +38,7 @@ async function startNextApplication() {
   let claimedJob = null;
   try {
     const config = await settings();
-    await api('/api/extension/heartbeat', {method:'POST',body:JSON.stringify({...config,version:'3.0.0'})});
+    await api('/api/extension/heartbeat', {method:'POST',body:JSON.stringify({...config,version:'3.1.0'})});
     if (!config.autoApplyEnabled) return;
     const tasks = await activeTasks();
     const openTabIds = new Set((await ext.tabs.query({})).map((tab) => String(tab.id)));
@@ -51,7 +51,7 @@ async function startNextApplication() {
     }
     if (removedStaleTask) await saveTasks(tasks);
     if (Object.keys(tasks).length) return;
-    const data = await api("/api/applications/next?client_version=3.0.0");
+    const data = await api("/api/applications/next?client_version=3.1.0");
     if (!data.job) return;
     claimedJob = data.job;
     const tab = await ext.tabs.create({ url: data.job.url, active: false });
