@@ -38,6 +38,7 @@ async function startNextApplication() {
   let claimedJob = null;
   try {
     const config = await settings();
+    await api('/api/extension/heartbeat', {method:'POST',body:JSON.stringify({...config,version:'3.0.0'})});
     if (!config.autoApplyEnabled) return;
     const tasks = await activeTasks();
     const openTabIds = new Set((await ext.tabs.query({})).map((tab) => String(tab.id)));
@@ -46,11 +47,11 @@ async function startNextApplication() {
       if (openTabIds.has(tabId)) continue;
       delete tasks[tabId];
       removedStaleTask = true;
-      await report(job, "retry", "A aba foi fechada antes da conclusão; candidatura devolvida à fila");
+      await report(job, "action_required", "A aba foi fechada sem confirmação; confira o envio antes de tentar novamente");
     }
     if (removedStaleTask) await saveTasks(tasks);
     if (Object.keys(tasks).length) return;
-    const data = await api("/api/applications/next");
+    const data = await api("/api/applications/next?client_version=3.0.0");
     if (!data.job) return;
     claimedJob = data.job;
     const tab = await ext.tabs.create({ url: data.job.url, active: false });
@@ -68,10 +69,11 @@ async function report(job, state, message, currentUrl = "") {
   try {
     await api(`/api/applications/${job.id}/result`, {
       method: "POST",
-      body: JSON.stringify({ state, message, current_url: currentUrl }),
+      body: JSON.stringify({ state, message, current_url: currentUrl, attempt_token:job.attempt_token, evidence:job.evidence || '' }),
     });
   } catch (error) {
     console.warn("Não foi possível registrar o resultado:", error);
+    throw error;
   }
 }
 
@@ -110,6 +112,7 @@ ext.tabs.onRemoved.addListener(async (tabId) => {
   const tasks = await activeTasks();
   const key = String(tabId);
   if (!tasks[key]) return;
+  await report(tasks[key], 'action_required', 'A aba foi fechada sem confirmação; confira o envio antes de reenfileirar');
   delete tasks[key];
   await saveTasks(tasks);
   startNextApplication();
@@ -123,17 +126,23 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     if (message.type === "getTask") {
       const config = await settings();
-      if (!job && sender.tab?.url && /^https?:/i.test(sender.tab.url)) {
-        try {
-          const data = await api(`/api/applications/by-url?url=${encodeURIComponent(sender.tab.url)}`);
-          job = data.job || null;
-          if (job && tabId != null) {
-            tasks[String(tabId)] = job;
-            await saveTasks(tasks);
-          }
-        } catch (_) {}
-      }
       sendResponse({ job, config });
+      return;
+    }
+
+    if (message.type === 'beforeSubmit' && job) {
+      if (job.submitted) { sendResponse({error:'Envio já iniciado; aguarde confirmação'}); return; }
+      job.submitted=true;
+      tasks[String(tabId)]=job;
+      await saveTasks(tasks);
+      await report(job,'processing','Envio iniciado; aguardando comprovante da página',sender.tab?.url||'');
+      sendResponse({ok:true});
+      return;
+    }
+
+    if (message.type === 'answerQuestions' && job) {
+      const data=await api(`/api/applications/${job.id}/answers`,{method:'POST',body:JSON.stringify({attempt_token:job.attempt_token,questions:message.questions})});
+      sendResponse(data);
       return;
     }
 
@@ -150,11 +159,15 @@ ext.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 
     if (message.type === "result" && job) {
+      job.evidence=message.evidence||'';
       await report(job, message.state, message.message || "", message.currentUrl || "");
       if (["sent", "action_required", "failed"].includes(message.state) && tabId != null) {
         delete tasks[String(tabId)];
         await saveTasks(tasks);
         if (message.state === "sent") {
+          if (ext.notifications) {
+            try { await ext.notifications.create({type:'basic',iconUrl:ext.runtime.getURL('icon.svg'),title:'Currículo enviado automaticamente',message:job.title}); } catch (_) {}
+          }
           try { await ext.tabs.remove(tabId); } catch (_) {}
         }
         startNextApplication();

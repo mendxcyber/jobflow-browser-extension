@@ -4,11 +4,18 @@ Extensão experimental que conecta o navegador ao [JobFlow Local](https://github
 
 ## Comportamento
 
+Protocolo 3.0.0, compatível com a fila atual do JobFlow Local.
+
 - Lê a fila de candidaturas no serviço local.
 - Usa somente dados e respostas previamente configurados.
 - Reconhece alguns botões de avanço e envio por texto.
 - Interrompe o fluxo ao detectar login, CAPTCHA, campos obrigatórios desconhecidos ou etapa não reconhecida.
 - Registra situações que precisam de intervenção no painel.
+- Informa versão e estado das opções para o painel detectar desconexões.
+- Usa token de tentativa e exige registro de início de envio antes do clique final.
+- Evita repetir o clique de envio e só registra sucesso após detectar confirmação.
+- Solicita respostas ao serviço local, que usa banco revisado e IA local opcional.
+- Envia evidência e URL para o histórico, com notificações quando permitidas.
 
 **Automação e envio final iniciam desativados na edição pública.** Revise o código e teste em formulário controlado antes de habilitar qualquer opção. Detecção por texto é heurística: não garante compatibilidade com todos os portais nem identificação perfeita do resultado.
 
@@ -32,6 +39,10 @@ Clone o repositório e inicie o JobFlow Local. O endereço padrão é `http://lo
 ## Permissões e privacidade
 
 A implementação atual solicita acesso amplo a páginas HTTP/HTTPS, além de abas, armazenamento e alarmes. O acesso é necessário ao mecanismo genérico atual, mas é uma limitação de segurança relevante. Não instale em um perfil que contenha sessões sensíveis sem compreender o código; restringir os domínios é uma melhoria planejada.
+
+Também solicita notificações para avisar envios confirmados. Abrir uma vaga
+manualmente não inicia uma candidatura: somente abas vinculadas à fila recebem
+a tarefa. Abas fechadas ou resultados incertos exigem revisão antes de nova tentativa.
 
 O código não contém serviço de analytics. Dados de candidatura e endereço da página podem ser enviados ao painel configurado. Dados preenchidos e arquivos anexados podem ser transmitidos ao site de emprego. Não há resolução automática de CAPTCHA.
 
